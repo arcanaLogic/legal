@@ -1,0 +1,18 @@
+{
+  "version": "1.0",
+  "updated": "2026-11-02",
+  "basePath": "/legal/",
+  "origin": "https://arcanalogic.github.io",
+  "sourceSha256": "c2efcbe770810aaee99ccefdfa556cdf4699a172e0b68904110b18617e6cafa7",
+  "languages": [
+    "es",
+    "en",
+    "pt",
+    "fr",
+    "it",
+    "de"
+  ],
+  "documents": [
+    "terms"
+  ]
+}
