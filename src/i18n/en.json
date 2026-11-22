@@ -1,7 +1,7 @@
 {
   "documents": "Documents",
   "draft": "Draft for review. This process is planned for a future release.",
-  "review": "Document under review. Publication is pending.",
+  "review": "This document is under review.",
   "titles": {
     "privacy": "Privacy",
     "faq": "Frequently asked questions",

@@ -1,7 +1,7 @@
 {
   "documents": "Documenti",
   "draft": "Bozza da revisionare. La procedura è prevista per una versione futura.",
-  "review": "Documento in revisione. La pubblicazione è in attesa.",
+  "review": "Questo documento è in revisione.",
   "titles": {
     "privacy": "Privacy",
     "faq": "Domande frequenti",

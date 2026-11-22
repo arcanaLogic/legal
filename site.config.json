@@ -1,34 +1,41 @@
 {
-  "version": "1.0",
-  "updated": "2026-11-02",
-  "basePath": "/legal/",
-  "origin": "https://arcanalogic.github.io",
-  "sourceSha256": "c2efcbe770810aaee99ccefdfa556cdf4699a172e0b68904110b18617e6cafa7",
-  "termsTemplateSha256": "ae1d999e9fae79f440baf03c660bb7678ae4a6ad31f1f5597c71d2e3ead28903",
-  "languages": [
-    "es",
-    "en",
-    "pt",
-    "fr",
-    "it",
-    "de"
-  ],
-  "documents": {
-    "terms": {
-      "status": "review"
+    "version": "1.0",
+    "updated": "2026-11-02",
+    "basePath": "/legal/",
+    "origin": "https://arcanalogic.github.io",
+    "sourceSha256": "c2efcbe770810aaee99ccefdfa556cdf4699a172e0b68904110b18617e6cafa7",
+    "termsTemplateSha256": "ae1d999e9fae79f440baf03c660bb7678ae4a6ad31f1f5597c71d2e3ead28903",
+    "languages":
+    [
+        "es",
+        "en",
+        "pt",
+        "fr",
+        "it",
+        "de"
+    ],
+    "documents":
+    {
+        "terms":
+        {
+            "status": "review"
+        },
+        "privacy":
+        {
+            "status": "review"
+        },
+        "faq":
+        {
+            "status": "review"
+        },
+        "contact":
+        {
+            "status": "review"
+        },
+        "delete-account":
+        {
+            "status": "review"
+        }
     },
-    "privacy": {
-      "status": "draft"
-    },
-    "faq": {
-      "status": "draft"
-    },
-    "contact": {
-      "status": "draft"
-    },
-    "delete-account": {
-      "status": "draft"
-    }
-  },
-  "accountDeletionVerified": false
+    "accountDeletionVerified": false
 }
