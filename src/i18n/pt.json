@@ -1,0 +1,11 @@
+{
+  "documents": "Documentos",
+  "draft": "Rascunho para revisão. O procedimento está previsto para uma futura versão.",
+  "review": "Documento em revisão. A publicação está pendente.",
+  "titles": {
+    "privacy": "Privacidade",
+    "faq": "Perguntas frequentes",
+    "contact": "Contacto",
+    "delete-account": "Eliminação de conta"
+  }
+}

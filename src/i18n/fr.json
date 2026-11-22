@@ -1,0 +1,11 @@
+{
+  "documents": "Documents",
+  "draft": "Projet à relire. Cette procédure est prévue pour une prochaine version.",
+  "review": "Document en cours de révision. Sa publication est en attente.",
+  "titles": {
+    "privacy": "Confidentialité",
+    "faq": "Questions fréquentes",
+    "contact": "Contact",
+    "delete-account": "Suppression de compte"
+  }
+}

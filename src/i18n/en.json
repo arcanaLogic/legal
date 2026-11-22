@@ -1,0 +1,11 @@
+{
+  "documents": "Documents",
+  "draft": "Draft for review. This process is planned for a future release.",
+  "review": "Document under review. Publication is pending.",
+  "titles": {
+    "privacy": "Privacy",
+    "faq": "Frequently asked questions",
+    "contact": "Contact",
+    "delete-account": "Account deletion"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "documents": "Documentos",
+  "draft": "Borrador para revisión. El procedimiento está previsto para una próxima implementación.",
+  "review": "Documento en revisión. Su publicación está pendiente.",
+  "titles": {
+    "privacy": "Privacidad",
+    "faq": "Preguntas frecuentes",
+    "contact": "Contacto",
+    "delete-account": "Eliminación de cuenta"
+  }
+}
