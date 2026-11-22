@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
-import { root, config, labels, renderDocument, siteVariables, sectionsFor, outputDirectory, assertNoPlaceholders } from './build.mjs';
+import { root, config, labels, renderDocument, siteVariables, sectionsFor, outputDirectory, assertNoPlaceholders, escape } from './build.mjs';
 const preview = process.argv.includes('--preview');
 const output = outputDirectory(preview);
 const sections = sectionsFor(preview);
@@ -24,7 +24,36 @@ const signatures = {
  de:['Eine Tarot-Legung pro Monat.','Eine Ja/Nein-Befragung pro Monat.','Eine Tarot-Legung pro Woche.','Drei Ja/Nein-Befragungen pro Woche.','Zwei Tarot-Legungen pro Woche.','Eine Ja/Nein-Befragung pro Tag.','drei belohnte Werbeanzeigen pro zusätzlicher Befragung.','zwei belohnte Werbeanzeigen pro zusätzlicher Befragung.']
 };
 const generated=[];
+const home = read(`${output}/index.html`);
+const i18n = lang => JSON.parse(read(`src/i18n/${lang}.json`));
+const titles = lang => ({terms: labels[lang].title, ...i18n(lang).titles});
+const route = (lang, section) => `${config.basePath}${lang}/${section}/`;
+const documentBody = page => page.match(/<article aria-labelledby="document-title">([\s\S]*?)<\/article>/)?.[1];
+const navigation = (page, name) => page.match(new RegExp(`<nav class="languages ${name}"[^>]*>(.*?)</nav>`, 's'))?.[1] ?? '';
+const hrefs = html => Array.from(html.matchAll(/href="([^"]+)"/g), match => match[1]);
+
+function validateNavigation(page, lang, section) {
+ const languages = navigation(page, 'language-selector');
+ const documents = navigation(page, 'section-selector');
+ assert.deepEqual(hrefs(languages), config.languages.map(code => route(code, section)), `${lang}/${section}: language changes must preserve the section`);
+ assert(languages.includes(`href="${route(lang, section)}" lang="${lang}" hreflang="${lang}" aria-current="page"`));
+ assert.deepEqual(hrefs(documents), sections.length > 1 ? sections.map(code => route(lang, code)) : [], `${lang}/${section}: wrong section menu`);
+ if (sections.length > 1) {
+  for (const code of sections) {
+   const current = code === section ? ' aria-current="page"' : '';
+   assert(documents.includes(`href="${route(lang, code)}"${current}>${escape(titles(lang)[code])}</a>`));
+  }
+ }
+ assert(page.includes(`<a class="brand" href="${config.basePath}"`), `${lang}/${section}: missing home link`);
+}
 for(const lang of config.languages) {
+ const card = home.match(new RegExp(`<section class="language-card" id="language-${lang}" lang="${lang}"[^>]*>(.*?)</section>`, 's'))?.[1];
+ assert(card, `Missing home language card: ${lang}`);
+ assert(home.includes(`href="#language-${lang}" lang="${lang}"`));
+ assert.deepEqual(hrefs(card), sections.map(code => route(lang, code)), `Incomplete home menu: ${lang}`);
+ for (const code of sections) {
+  assert(card.includes(`href="${route(lang, code)}" hreflang="${lang}">${escape(titles(lang)[code])}</a>`));
+ }
  const text=read(`src/${lang}/terms.md`);
  const numberedSections=[...text.matchAll(/^## (\d+)\./gm)].map(m=>Number(m[1]));
  assert.deepEqual(numberedSections,Array.from({length:17},(_,i)=>i+1),`${lang}: 17 ordered sections`);
@@ -39,24 +68,25 @@ for(const lang of config.languages) {
  assert.deepEqual(text.match(/\{\{[^{}]+\}\}/g), spanish.match(/\{\{[^{}]+\}\}/g), `${lang}: terms variable references differ from Spanish`);
  assert(!/artificial intelligence|inteligencia artificial|intelligence artificielle|intelligenza artificiale|inteligência artificial|künstliche intelligenz/i.test(text));
  const parsed=renderDocument(text, 'terms');assert.equal(parsed.toc.length,18);
- const html=read(`${output}/${lang}/terms/index.html`);
- assert(html.includes(`<html lang="${lang}">`));assert(html.includes(parsed.html));
- assert(html.includes('id="acceptance"'));assert.equal((html.match(/<h1\b/g)||[]).length,1);
- if(lang!=='es')assert(html.includes(labels[lang].translation));
- generated.push(`${lang}/terms/index.html`);
- for (const section of Object.keys(config.documents).filter(code => code !== 'terms')) {
+ for (const section of Object.keys(config.documents)) {
   const file = `${lang}/${section}/index.html`;
-  const source = read(`src/${lang}/${section}.md`);
-  const {html: rendered} = renderDocument(source, section);
+  const source = section === 'terms' ? text : read(`src/${lang}/${section}.md`);
+  const {html: rendered} = section === 'terms' ? parsed : renderDocument(source, section);
   if (!sections.includes(section)) continue;
   const page = read(`${output}/${file}`);
-  const status = config.documents[section].status;
-  const approved = status === 'approved';
-  assert(preview || approved, `${file}: unapproved content in publishing output`);
-  assert(page.includes(rendered), `${file}: rendered document does not match generated page`);
+  const {status} = config.documents[section];
+  assert(preview || status !== 'draft', `${file}: draft content in publishing output`);
+  assert.equal(documentBody(page), rendered, `${file}: rendered document does not match generated page`);
+  validateNavigation(page, lang, section);
   assert(page.includes(`<html lang="${lang}">`));
   assert.equal((page.match(/<h1\b/g) || []).length, 1);
-  assert.equal(page.includes('role="note"'), !approved);
+  assert.equal(page.includes('role="note"'), status !== 'approved');
+  if (status !== 'approved') {
+   assert(page.includes(escape(i18n(lang)[status])), `${file}: missing editorial notice`);
+   if (lang !== 'es') assert(page.includes(escape(labels[lang].translation)));
+   assert(!page.includes('href="mailto:'), `${file}: unapproved contact link`);
+  }
+  if (section === 'terms') assert(page.includes('id="acceptance"'));
   if (['privacy', 'faq', 'delete-account'].includes(section)) assert(/\b48\b/.test(source), `${file}: missing 48-hour deadline`);
   for (const code of config.languages) {
    assert(page.includes(`hreflang="${code}" href="${config.origin}${config.basePath}${code}/${section}/"`));
@@ -94,7 +124,6 @@ for(const file of generated.filter(f=>f.endsWith('.html'))) {
 }
 function walk(dir,prefix='') {return fs.readdirSync(dir,{withFileTypes:true}).flatMap(entry=>{assert(!entry.isSymbolicLink(),'Symlinks forbidden');const name=prefix+entry.name;return entry.isDirectory()?walk(path.join(dir,entry.name),name+'/'):[name];});}
 assert.deepEqual(walk(path.join(root,output)).sort(),generated.sort(),'Only approved static output may be published');
-assert(read(output+'/index.html').includes('href="/legal/es/terms/"'));
 assert(read(output+'/assets/site.css').includes('@media(max-width:760px)'));
 assert(read(output+'/assets/site.css').includes(':focus-visible'));
 assert(!read(output+'/assets/site.css').includes('@import'));

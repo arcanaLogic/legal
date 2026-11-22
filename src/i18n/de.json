@@ -1,7 +1,7 @@
 {
   "documents": "Dokumente",
   "draft": "Entwurf zur Prüfung. Das Verfahren ist für eine künftige Version vorgesehen.",
-  "review": "Das Dokument wird geprüft. Die Veröffentlichung steht aus.",
+  "review": "Dieses Dokument befindet sich in Prüfung.",
   "titles": {
     "privacy": "Datenschutz",
     "faq": "Häufig gestellte Fragen",

@@ -1,7 +1,7 @@
 {
   "documents": "Documentos",
   "draft": "Rascunho para revisão. O procedimento está previsto para uma futura versão.",
-  "review": "Documento em revisão. A publicação está pendente.",
+  "review": "Este documento está em revisão.",
   "titles": {
     "privacy": "Privacidade",
     "faq": "Perguntas frequentes",

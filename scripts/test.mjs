@@ -39,14 +39,16 @@ const renderedPage = (lang, section) => fs.readFileSync(path.join(output, lang, 
 try {
  build({preview, variables: changedVariables});
  for (const lang of config.languages) {
-  const terms = renderedPage(lang, 'terms');
-  for (const key of ['legalName', 'professionalAddress', 'legalContactEmail']) {
-   assert(terms.includes(escape(changedVariables[key])), `${lang}: missing substituted ${key}`);
-  }
-  assert.equal(terms.split(changedVariables.legalContactEmail).length - 1, 2);
-  for (const id of ['document-title', 'acceptance', 'plan-basic', 'plan-premium', 'plan-vip',
-   ...Array.from({length: 17}, (_, index) => `section-${index + 1}`)]) {
-   assert(terms.includes(`id="${id}"`), `${lang}: missing historical anchor ${id}`);
+  if (sectionsFor(preview).includes('terms')) {
+   const terms = renderedPage(lang, 'terms');
+   for (const key of ['legalName', 'professionalAddress', 'legalContactEmail']) {
+    assert(terms.includes(escape(changedVariables[key])), `${lang}: missing substituted ${key}`);
+   }
+   assert.equal(terms.split(changedVariables.legalContactEmail).length - 1, 2);
+   for (const id of ['document-title', 'acceptance', 'plan-basic', 'plan-premium', 'plan-vip',
+    ...Array.from({length: 17}, (_, index) => `section-${index + 1}`)]) {
+    assert(terms.includes(`id="${id}"`), `${lang}: missing historical anchor ${id}`);
+   }
   }
   for (const section of ['privacy', 'faq', 'contact', 'delete-account'].filter(code => sectionsFor(preview).includes(code))) {
    const source = fs.readFileSync(path.join(root, 'src', lang, `${section}.md`), 'utf8');
@@ -71,21 +73,32 @@ try {
  if (originalRequiredVariables === undefined) delete config.documents.terms.requiredVariables;
  else config.documents.terms.requiredVariables = originalRequiredVariables;
 }
-const originalStatus = config.documents['delete-account'].status;
+const originalStatuses = Object.fromEntries(Object.entries(config.documents).map(([section, document]) => [section, document.status]));
 const originalVerification = config.accountDeletionVerified;
 try {
- config.documents['delete-account'].status = 'review';
- assert(!sectionsFor(false).includes('delete-account'));
- assert(sectionsFor(true).includes('delete-account'));
- config.documents['delete-account'].status = 'approved';
  config.accountDeletionVerified = false;
+ for (const section of Object.keys(config.documents)) {
+  config.documents[section].status = 'review';
+  assert(sectionsFor(false).includes(section));
+  config.documents[section].status = 'draft';
+  assert(!sectionsFor(false).includes(section));
+  assert(sectionsFor(true).includes(section));
+ }
+ if (!preview) {
+  build();
+  assert(!fs.existsSync(path.join(output, 'es')), 'Draft sections must not generate production routes');
+  assert(!fs.readFileSync(path.join(output, 'index.html'), 'utf8').includes('/legal/es/terms/'));
+ }
+ config.documents['delete-account'].status = 'approved';
  assert.throws(() => sectionsFor(false), /readiness must be verified/);
  config.accountDeletionVerified = true;
  assert(sectionsFor(false).includes('delete-account'));
 } finally {
- config.documents['delete-account'].status = originalStatus;
+ for (const [section, status] of Object.entries(originalStatuses)) config.documents[section].status = status;
  config.accountDeletionVerified = originalVerification;
+ if (!preview) build();
 }
+assert.deepEqual(snapshot(output), before, 'Editorial tests must restore the original artifact');
 assert(markdown('# Title\n\n## 1. Section\n\n<script>alert(1)</script>').html.includes('&lt;script&gt;'));
 assert(!markdown('# Title\n\n<script>alert(1)</script>').html.includes('<script>'));
 assert.throws(()=>markdown('> unsupported block'),'Unsupported Markdown must not silently lose content');

@@ -1,7 +1,7 @@
 {
   "documents": "Documentos",
   "draft": "Borrador para revisión. El procedimiento está previsto para una próxima implementación.",
-  "review": "Documento en revisión. Su publicación está pendiente.",
+  "review": "Este documento está en revisión.",
   "titles": {
     "privacy": "Privacidad",
     "faq": "Preguntas frecuentes",

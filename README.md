@@ -49,48 +49,53 @@ Estas comprobaciones **no sustituyen la revisión jurídica/lingüística ni un 
 HTML completo**. Tras cambiar el original autorizado, revisar manualmente todas las
 traducciones y actualizar deliberadamente el hash de la plantilla, la versión y las comprobaciones.
 
-## Rutas previstas
+## Rutas y navegación
 
-- Selección de idioma: `https://arcanalogic.github.io/legal/`.
-- Español predeterminado: `https://arcanalogic.github.io/legal/es/terms/`.
-- Otros idiomas: `/legal/en/terms/`, `/legal/pt/terms/`, `/legal/fr/terms/`,
-  `/legal/it/terms/` y `/legal/de/terms/` en el mismo host.
+La portada `/legal/` muestra un selector y un catálogo de documentos por
+idioma. Cada ficha usa los títulos de su idioma. En los documentos, el menú
+de secciones conserva el idioma, el selector de idioma conserva la sección
+y la marca ArcanaLogic vuelve a la portada.
 
-La raíz ofrece español como acción principal; no redirige automáticamente ni
-elige por geolocalización. El idioma de cada página está declarado con `lang`.
-El diseño usa CSS local responsive, controles enfocables, enlaces de salto,
-índice, selector de idioma y estilos de impresión. Las páginas se marcan
-`noindex,follow` mientras sean borradores; esto no impide su acceso público.
+Las rutas usan `/legal/{idioma}/{seccion}/`, con seis idiomas (`es`, `en`,
+`pt`, `fr`, `it`, `de`) y cinco secciones (`terms`, `privacy`, `faq`,
+`contact`, `delete-account`). La portada y los menús muestran únicamente
+las rutas incluidas en la salida que se está consultando.
 
-## GitHub Actions y publicación
+## Preparación y publicación en GitHub Pages
 
-Remoto previsto: `https://github.com/arcanaLogic/legal.git`. Rama principal: `main`.
+- `npm test` valida la salida de producción en `dist/` con los estados
+  editoriales que constan en `site.config.json`.
+- `npm run preview` valida las 30 páginas de documentos y la portada en
+  `dist-preview/`, con los avisos de revisión que correspondan.
+- `node scripts/test-release.mjs` ejecuta los mismos scripts que Actions,
+  comprueba que el directorio coincide con el paso de subida del workflow y
+  exige las 30 rutas más la raíz con la configuración real.
 
-**Crear el repositorio público, hacer push y activar Pages requieren autorización
-expresa del usuario.** El usuario ya ha creado el repositorio público y ha
-autorizado el primer push. La publicación efectiva y la activación de Pages
-deben verificarse; la existencia del repositorio no acredita el despliegue.
-Se necesita autenticación válida con permisos sobre la cuenta de destino. No
-introducir contraseñas ni tokens en comandos, remotos, código, archivos o commits.
+Los documentos en `draft` solo aparecen en la vista previa. Los documentos
+en `review` se incluyen en `dist/` con sus avisos de revisión. El estado
+`approved` exige verificar la eliminación de cuentas antes de retirar los
+avisos editoriales o activar el enlace de correo de eliminación.
+La publicación informativa en `review` no requiere cambiar
+`accountDeletionVerified`.
 
-Después de la aprobación y autenticación:
+El workflow valida los PR dirigidos a `main`. La subida de `dist/` y el
+despliegue se ejecutan desde `main` en push o despacho manual, tras completarse
+el job de construcción. `dist-preview/` es una salida local de revisión.
 
-1. Inspeccionar de nuevo el repositorio remoto si existe; no sobrescribir su
-   contenido ni usar force push. Si no existe, crear únicamente `arcanaLogic/legal`.
-2. Revisar y guardar los archivos fuente y el workflow en la rama principal,
-   sin incluir `dist/` ni datos de acceso.
-3. Configurar Settings → Pages → Source: **GitHub Actions** (API: build_type=workflow).
-   No seleccionar una carpeta `/dist` de una rama como origen.
-4. Publicar los cambios revisados. El workflow valida pull requests y construye
-   la rama main; solo main/despacho manual publican el artefacto `dist/`.
-5. Revisar los jobs `build` y `deploy` y el entorno `github-pages`.
-6. Comprobar por HTTPS la raíz y las seis rutas: HTTP 200, idioma correcto,
-   contenido íntegro, CSS cargado, enlaces, índice y aviso de borrador/revisión.
+Para publicar el catálogo completo:
 
-El job de construcción solo puede leer el contenido. El job de publicación tiene
-`pages: write` e `id-token: write`, mediante el token efímero del workflow.
-No hace falta añadir secretos personales al repositorio. Las acciones oficiales
-se seleccionan por versión mayor; revisar actualizaciones de esas acciones.
+1. Ejecutar `node scripts/test-release.mjs` y revisar las 30 páginas y la
+   portada en `dist/`. El workflow genera el artefacto desde las fuentes
+   versionadas.
+2. Revisar el PR de `develop` a `main` y confirmar en **Settings → Pages**
+   que **Source** es **GitHub Actions** antes del merge autorizado, pues este
+   inicia el workflow de publicación.
+3. Comprobar que los jobs `build` y `deploy` terminan correctamente para el SHA
+   promovido. Verificar por HTTPS los 31 HTML y el CSS en la URL pública. Revisar
+   el idioma, el cambio de sección y de idioma, y el regreso a la portada.
+
+El job de construcción tiene acceso de lectura. El de publicación recibe
+`pages: write` e `id-token: write` en el entorno `github-pages`.
 
 ## Revisión del procedimiento de eliminación de cuentas
 
@@ -102,10 +107,6 @@ en seis idiomas: `privacy`, `faq`, `contact` y `delete-account`. El borrador
 de Privacidad cubre el procedimiento de eliminación y requiere completar la
 política del producto antes de su aprobación.
 
-El catálogo de `site.config.json` admite los estados `draft`, `review` y
-`approved`. El workflow publica exclusivamente `dist/`. Las secciones nuevas
-en estado `draft` o `review` se generan solo en la vista previa. Las seis
-Condiciones históricas conservan su disponibilidad y sus avisos de revisión.
 `site.variables.json` centraliza los valores públicos de todos los idiomas.
 En Markdown, `{{nombreVariable}}` requiere un valor. `{{?nombreVariable}}` se
 coloca al final de un elemento de lista completo y omite ese elemento si
@@ -113,7 +114,6 @@ el valor es `null`. Los valores se escapan al renderizar HTML.
 Para exigir un campo opcional en una sección, añadirlo a `requiredVariables`
 en su entrada del catálogo. La generación y validación fallarán si está
 pendiente. `taxId` se omite mientras se determina si corresponde publicarlo.
-`supportEmail` sigue pendiente de confirmación en la configuración oficial.
 Nunca incorporar datos de acceso al buzón al repositorio.
 
 Antes de aprobar estas secciones, comprobar el flujo en la app, el borrado
