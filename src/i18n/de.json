@@ -1,0 +1,11 @@
+{
+  "documents": "Dokumente",
+  "draft": "Entwurf zur Prüfung. Das Verfahren ist für eine künftige Version vorgesehen.",
+  "review": "Das Dokument wird geprüft. Die Veröffentlichung steht aus.",
+  "titles": {
+    "privacy": "Datenschutz",
+    "faq": "Häufig gestellte Fragen",
+    "contact": "Kontakt",
+    "delete-account": "Kontolöschung"
+  }
+}

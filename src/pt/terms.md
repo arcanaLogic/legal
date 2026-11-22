@@ -8,10 +8,10 @@
 
 ArcanaLogic é uma aplicação móvel gerida por uma pessoa singular que atua como titular do serviço.
 
-- **Titular:** [Nome completo legal]
-- **Domicílio profissional:** [Pendente]
-- **Identificação fiscal:** [Obrigatoriedade de publicação por determinar]
-- **Endereço de contacto:** [Pendente]
+- **Titular:** {{legalName}}
+- **Domicílio profissional:** {{professionalAddress}}
+- **Identificação fiscal:** {{?taxId}}
+- **Endereço de contacto:** {{legalContactEmail}}
 
 ## 2. Descrição da ArcanaLogic
 
@@ -198,7 +198,7 @@ Os utilizadores conservarão os seus direitos de reclamação e de acesso aos me
 
 As questões sobre ArcanaLogic, estas condições e o exercício de direitos poderão ser dirigidas a:
 
-**[Endereço de correio eletrónico de contacto pendente]**
+**{{legalContactEmail}}**
 
 ---
 

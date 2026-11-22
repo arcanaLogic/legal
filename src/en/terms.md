@@ -8,10 +8,10 @@
 
 ArcanaLogic is a mobile application managed by an individual acting as the service owner.
 
-- **Owner:** [Full legal name]
-- **Professional address:** [Pending]
-- **Tax identification:** [Mandatory publication requirement to be determined]
-- **Contact email:** [Pending]
+- **Owner:** {{legalName}}
+- **Professional address:** {{professionalAddress}}
+- **Tax identification:** {{?taxId}}
+- **Contact email:** {{legalContactEmail}}
 
 ## 2. Description of ArcanaLogic
 
@@ -198,7 +198,7 @@ Users will retain their rights to make claims and access the competent legal mec
 
 Enquiries about ArcanaLogic, these terms and the exercise of rights may be addressed to:
 
-**[Contact email pending]**
+**{{legalContactEmail}}**
 
 ---
 
